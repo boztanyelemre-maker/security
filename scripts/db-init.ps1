@@ -15,7 +15,7 @@ $env:PGPASSWORD = $Password
 
 $Migrations = @(
   "M00_extensions", "M01_lookup", "M02_auth", "M03_organizations", "M04_provider_profiles", "M04b_provider_min_price",
-  "M05_requests", "M06_request_matches", "M07_offers", "M08_engagements_payment", "M09_risk_admin_audit"
+  "M05_requests", "M06_request_matches", "M07_offers", "M08_engagements_payment", "M09_risk_admin_audit", "M09a_risk_flags_idempotent"
 )
 $MigrationsDir = "docs\migrations"
 $SeedFile      = "docs\seed\minimum-seed.sql"

@@ -1,0 +1,29 @@
+{
+  "name": "gus-mvp-backend",
+  "version": "0.1.0",
+  "description": "MVP Backend — Auth, Buyer, Provider, Admin API",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "db:init": "bash ../db/init.sh",
+    "db:init:win": "cd .. && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-init.ps1",
+    "db:init:docker": "cd .. && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-init-docker.ps1",
+    "health": "node -e \"require('http').get(process.env.HEALTH_URL || 'http://localhost:3000/health', r=>{console.log(r.statusCode); process.exit(r.statusCode===200?0:1)})\""
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
+    "pino": "^8.16.2",
+    "pino-http": "^8.5.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

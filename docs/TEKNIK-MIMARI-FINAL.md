@@ -30,10 +30,8 @@ Env: Development’ta `.env`; Production’da Render/Netlify UI’dan env vars.
 
 ## 3. Klasör Yapısı (Kesin)
 
-*Repo’da backend = planlardaki "server".*
-
 ```
-backend/                    # API (planlardaki "server")
+server/                     # API
   src/
     index.js
     config/

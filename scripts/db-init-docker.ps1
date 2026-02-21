@@ -11,11 +11,12 @@ $DbPass       = if ($env:PGPASSWORD) { $env:PGPASSWORD } else { "postgres" }
 
 $Migrations = @(
   "M00_extensions", "M01_lookup", "M02_auth", "M03_organizations", "M04_provider_profiles", "M04b_provider_min_price",
-  "M05_requests", "M06_request_matches", "M07_offers", "M08_engagements_payment", "M09_risk_admin_audit"
+  "M05_requests", "M06_request_matches", "M07_offers", "M08_engagements_payment", "M09_risk_admin_audit", "M09a_risk_flags_idempotent"
 )
 
 Write-Host "=== 1) PostgreSQL container ==="
-$exists = docker ps -a --format "{{.Names}}" | Select-String -Pattern "^\$ContainerName\$" -Quiet
+$namePattern = '^' + [regex]::Escape($ContainerName) + '$'
+$exists = docker ps -a --format "{{.Names}}" | Select-String -Pattern $namePattern -Quiet
 if (-not $exists) {
   Write-Host "Container yok, oluşturuluyor: $ContainerName"
   docker run --name $ContainerName `
@@ -27,7 +28,7 @@ if (-not $exists) {
   Write-Host "DB hazır olana kadar bekleniyor..."
   Start-Sleep -Seconds 8
 } else {
-  $running = docker ps --format "{{.Names}}" | Select-String -Pattern "^\$ContainerName\$" -Quiet
+  $running = docker ps --format "{{.Names}}" | Select-String -Pattern $namePattern -Quiet
   if (-not $running) {
     Write-Host "Container başlatılıyor: $ContainerName"
     docker start $ContainerName

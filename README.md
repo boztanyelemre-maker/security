@@ -190,6 +190,8 @@ Detaylı ekranlar, alanlar ve doğrulama kuralları: **[docs/WIREFRAME.md](docs/
 ---
 
 *Güvenlik hizmeti alan ve veren firmaları buluşturan B2B pazar yeri projesi.*
-#   s e c u r i t y  
- #   s e c u r i t y  
+#   s e c u r i t y 
+ 
+ #   s e c u r i t y 
+ 
  

@@ -17,14 +17,16 @@ docker run --name gus-psql \
   -d postgres:16
 ```
 
-Container zaten varsa: `docker start gus-psql`
+Container zaten varsa: `docker start gus-psql`. **Tek tık:** `scripts\start-postgres.bat` (CMD) veya `.\scripts\start-postgres.ps1` (PowerShell).
 
-### B) Backend (Node/Express)
+**Docker açılmıyorsa:** Yerel PostgreSQL kur — adımlar: [docs/YEREL-POSTGRES-KURULUM.md](docs/YEREL-POSTGRES-KURULUM.md).
 
-Proje kökünde **backend** klasörü (planlardaki “server” = backend):
+### B) Server (Node/Express)
+
+Proje kökünde **server** klasörü. “server” = backend):
 
 ```bash
-cd backend
+cd server
 npm install
 cp .env.example .env
 # .env içinde DATABASE_URL, JWT_SECRET, CORS_ORIGINS düzenle
@@ -39,10 +41,10 @@ npm run dev
 Postgres çalışırken:
 
 - **Linux/Mac (bash):**  
-  `cd backend` → `npm run db:init`  
+  `cd server` → `npm run db:init`  
   (veya proje kökünden: `bash db/init.sh`)
 - **Windows:**  
-  `cd backend` → `npm run db:init:win`  
+  `cd server` → `npm run db:init:win`  
   (veya proje kökünden: `.\scripts\db-init.ps1`)
 
 ---
@@ -51,12 +53,12 @@ Postgres çalışırken:
 
 | Dosya | Açıklama |
 |-------|-----------|
-| **backend/package.json** | Script’ler: `dev`, `start`, `db:init`, `db:init:win` |
-| **backend/.env** | Lokal env (kopyala: `cp .env.example .env`) |
-| **backend/src/index.js** | Express app’i dinleyen giriş noktası |
+| **server/package.json** | Script’ler: `dev`, `start`, `db:init`, `db:init:win` |
+| **server/.env** | Lokal env (kopyala: `cp .env.example .env`) |
+| **server/src/index.js** | Express app’i dinleyen giriş noktası |
 | **db/init.sh** | Migration + seed (bash); `npm run db:init` ile çağrılır |
 
-**backend/.env** örneği:
+**server/.env** örneği:
 
 ```env
 NODE_ENV=development
@@ -70,8 +72,8 @@ CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ## 3) Express sunucusu nasıl ayağa kalkar?
 
-- **backend/src/index.js** — `dotenv` yükler, `./app` require eder, `app.listen(port)`.
-- **backend/src/app.js** — `express()`, CORS (origin callback; Postman/curl için origin yoksa izin verir), `express.json({ limit: '1mb' })`, `/health`, route’lar, 404, error handler.
+- **server/src/index.js** — `dotenv` yükler, `./app` require eder, `app.listen(port)`.
+- **server/src/app.js** — `express()`, CORS (origin callback; Postman/curl için origin yoksa izin verir), `express.json({ limit: '1mb' })`, `/health`, route’lar, 404, error handler.
 
 Render’da **Start Command:** `npm start` (Render `PORT` verir; `app.listen(process.env.PORT)` kullanıyoruz).
 
@@ -79,16 +81,16 @@ Render’da **Start Command:** `npm start` (Render `PORT` verir; `app.listen(pro
 
 ## 4) Migration / seed (db:init)
 
-- **npm run db:init** (backend içinde) → `bash ../db/init.sh`  
+- **npm run db:init** (server içinde) → `bash ../db/init.sh`  
   - Proje köküne göre `docs/migrations` (M00→M09a) ve `docs/seed/minimum-seed.sql` çalıştırılır.
-- **npm run db:init:win** (backend içinde) → proje köküne geçip `scripts/db-init.ps1` çalıştırır.
+- **npm run db:init:win** (server içinde) → proje köküne geçip `scripts/db-init.ps1` çalıştırır.
 
 ---
 
 ## 5) Prod (Render) — sunucu nasıl başlar?
 
 1. **PostgreSQL:** Render’da “PostgreSQL” ekle → **Internal Database URL** alırsın.
-2. **Web Service (Backend):** Repo’yu bağla, root’u backend yapma; **Start Command:** `npm start` (veya build sonrası `cd backend && npm start` — Render’da “Root Directory” backend ise sadece `npm start`).
+2. **Web Service (Backend):** Repo’yu bağla, root’u backend yapma; **Start Command:** `npm start` (veya build sonrası `cd server && npm start` — Render’da “Root Directory” server ise sadece `npm start`).
 3. **Env (Backend service):**  
    `DATABASE_URL` (Render’ın verdiği), `JWT_SECRET`, `CORS_ORIGINS` (Netlify domain + custom domain).
 
@@ -109,7 +111,7 @@ Render otomatik `PORT` verir; kod `process.env.PORT` ile dinler.
 
 | Ortam | Veritabanı | API |
 |-------|------------|-----|
-| **Lokal** | Docker Postgres (gus-psql) | `cd backend` → `npm run dev` → http://localhost:3000 |
+| **Lokal** | Docker Postgres (gus-psql) | `cd server` → `npm run dev` → http://localhost:3000 |
 | **Prod** | Render Postgres | Render Web Service → `npm start` |
 | **Frontend** | — | Netlify; `VITE_API_BASE_URL` = Render API URL |
 
