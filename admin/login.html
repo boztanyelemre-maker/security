@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin giriş - Güvenlik Pazar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar</a>
+    <div class="nav-buttons">
+      <a href="../index.html" class="btn btn-secondary">Ana sayfaya dön</a>
+    </div>
+  </nav>
+
+  <main class="form-page">
+    <a href="../index.html" class="back">← Ana sayfaya dön</a>
+    <h1>Admin girişi</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Sadece platform yöneticileri bu alana girebilir. Giriş sonrası alıcı ve sağlayıcı listelerini yönetirsiniz.</p>
+
+    <form class="form-card" id="form-admin-login">
+      <div class="form-group">
+        <label for="email">E-posta <span style="color: var(--accent);">*</span></label>
+        <input type="email" id="email" name="email" required placeholder="admin@guvenlikpazar.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Şifre <span style="color: var(--accent);">*</span></label>
+        <input type="password" id="password" name="password" required placeholder="Şifre">
+      </div>
+      <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem;">Demo: Backend olmadığı için herhangi bir e-posta/şifre ile devam edebilirsiniz.</p>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Admin paneline gir</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('form-admin-login').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Gerçek sistemde: API'ye gönderilir, cevapta user.role === 'ADMIN' kontrol edilir; değilse 403.
+      localStorage.setItem('demo_admin', 'true');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

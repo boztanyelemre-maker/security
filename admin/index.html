@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Güvenlik Pazar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar · Admin</a>
+    <div class="nav-buttons">
+      <a href="../index.html" class="btn btn-secondary">Siteye Dön</a>
+      <a href="login.html" class="btn btn-primary" id="admin-logout">Çıkış</a>
+    </div>
+  </nav>
+
+  <main class="admin-page">
+    <h1>Yönetim paneli</h1>
+    <p style="color: var(--text-muted); margin: 0 0 1.5rem;">Alıcı ve sağlayıcı firmaları ayrı ayrı yönetin. Talepler ve teklifler (ileride) buradan izlenir.</p>
+
+    <div class="admin-nav">
+      <a href="buyers.html">Alıcı firmalar</a>
+      <a href="providers.html">Sağlayıcı firmalar</a>
+      <a href="#" style="opacity: 0.7;">Talepler</a>
+      <a href="#" style="opacity: 0.7;">Teklifler</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 560px;">
+      <a href="buyers.html" class="choice-card" style="text-align: left;">
+        <span class="icon">✅</span>
+        <h2>Alıcı firmalar</h2>
+        <p>Güvenlik hizmeti almak isteyen firmalar. Talep sayıları, lokasyon, durum.</p>
+      </a>
+      <a href="providers.html" class="choice-card" style="text-align: left;">
+        <span class="icon">🛡️</span>
+        <h2>Sağlayıcı firmalar</h2>
+        <p>Güvenlik hizmeti veren firmalar. Kapasite, şehirler, teklif sayıları.</p>
+      </a>
+    </div>
+  </main>
+  <script>
+    document.getElementById('admin-logout').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('demo_admin');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

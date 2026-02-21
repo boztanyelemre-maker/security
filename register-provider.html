@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kayıt Ol - Güvenlik Hizmeti Vermek İstiyorum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar</a>
+    <div class="nav-buttons">
+      <a href="register.html" class="btn btn-secondary">Geri</a>
+      <a href="login.html" class="btn btn-primary">Giriş Yap</a>
+    </div>
+  </nav>
+
+  <main class="form-page">
+    <a href="register.html" class="back">← Firma türü seçimine dön</a>
+    <h1>Güvenlik hizmeti vermek isteyen firma</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Hesabınızı oluşturun, ardından profilinizi tamamlayabilirsiniz.</p>
+
+    <form class="form-card" action="#" method="post" id="form-provider">
+      <div class="form-group">
+        <label for="company">Firma Ünvanı <span style="color: var(--accent);">*</span></label>
+        <input type="text" id="company" name="company" required minlength="5" placeholder="Örn: XYZ Güvenlik A.Ş. (min 5 karakter)">
+      </div>
+      <div class="form-group">
+        <label for="vkn">Vergi No / VKN <span style="color: var(--accent);">*</span></label>
+        <input type="text" id="vkn" name="vkn" required placeholder="10 haneli vergi kimlik numarası" pattern="[0-9]{10}" maxlength="10">
+        <span class="hint">10 rakam</span>
+      </div>
+      <div class="form-group">
+        <label for="contact">Yetkili Ad Soyad <span style="color: var(--accent);">*</span></label>
+        <input type="text" id="contact" name="contact" required placeholder="Ad Soyad">
+      </div>
+      <div class="form-group">
+        <label for="email">E-posta <span style="color: var(--accent);">*</span></label>
+        <input type="email" id="email" name="email" required placeholder="ornek@guvenlik.com">
+      </div>
+      <div class="form-group">
+        <label for="phone">Telefon <span style="color: var(--accent);">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="05XX XXX XX XX">
+      </div>
+      <div class="form-group">
+        <label>Yetki belgesi var mı? (ÖGG vb.) <span style="color: var(--accent);">*</span></label>
+        <div class="form-group-check" style="gap: 1rem; margin-top: 0.5rem;">
+          <label class="form-group-check">
+            <input type="radio" name="license" value="evet" required> Evet
+          </label>
+          <label class="form-group-check">
+            <input type="radio" name="license" value="hayir"> Hayır
+          </label>
+        </div>
+        <span class="hint">ÖGG veya ilgili sektör lisansı / yetki belgesi.</span>
+      </div>
+      <div class="form-group">
+        <label for="password">Şifre <span style="color: var(--accent);">*</span></label>
+        <input type="password" id="password" name="password" required placeholder="Min 8 karakter, en az 1 büyük harf" minlength="8">
+        <span class="hint">En az 8 karakter, en az 1 büyük harf</span>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Hesap Oluştur → Profilini Tamamla</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('form-provider').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var company = document.getElementById('company').value.trim();
+      var password = document.getElementById('password').value;
+      if (company.length < 5) {
+        alert('Firma ünvanı en az 5 karakter olmalıdır.');
+        return;
+      }
+      if (password.length < 8 || !/[A-Z]/.test(password)) {
+        alert('Şifre en az 8 karakter ve en az 1 büyük harf içermelidir.');
+        return;
+      }
+      localStorage.setItem('demo_role', 'provider'); // Giriş sonrası doğru panele yönlendirme için
+      window.location.href = 'provider/profile.html';
+    });
+  </script>
+</body>
+</html>

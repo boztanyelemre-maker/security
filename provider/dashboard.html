@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sağlayıcı paneli - Güvenlik Pazar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="dashboard.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar · Sağlayıcı</a>
+    <div class="nav-buttons">
+      <a href="requests.html" class="btn btn-primary">Uygun talepler</a>
+      <a href="../login.html" class="btn btn-secondary">Çıkış</a>
+    </div>
+  </nav>
+
+  <main class="form-page form-page-wide" style="max-width: 720px;">
+    <h1>Sağlayıcı paneli</h1>
+    <p style="color: var(--text-muted); margin: 0 0 1.5rem;">Kapasitenize ve fiyat politikanıza uygun taleplere teklif verin. Profilinizi güncel tutun.</p>
+
+    <div class="choice-cards" style="grid-template-columns: 1fr;">
+      <a href="requests.html" class="choice-card">
+        <span class="icon">🔍</span>
+        <h2>Uygun talepler</h2>
+        <p>Size uygun açık talepleri görün. Bütçe tutarı gösterilmez; sadece "uygundur / uygun değildir" bilgisi yer alır.</p>
+      </a>
+      <a href="profile.html" class="choice-card">
+        <span class="icon">🛡️</span>
+        <h2>Profil / kapasite</h2>
+        <p>Hizmet verdiğiniz şehirler, kapasite ve min/max iş büyüklüğünüzü güncelleyin.</p>
+      </a>
+      <a href="#" class="choice-card" style="opacity: 0.85;">
+        <span class="icon">📤</span>
+        <h2>Teklif verdiklerim</h2>
+        <p>Verdiğiniz tekliflerin durumu. (Backend bağlandığında listelenecek)</p>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

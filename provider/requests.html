@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uygun talepler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="dashboard.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar · Sağlayıcı</a>
+    <div class="nav-buttons">
+      <a href="profile.html" class="btn btn-secondary">Profilim</a>
+      <a href="../login.html" class="btn btn-primary">Çıkış</a>
+    </div>
+  </nav>
+
+  <main class="form-page form-page-wide" style="max-width: 720px;">
+    <h1>Uygun talepler</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Bütçe tutarları size gösterilmez. Talebin fiyat politikanıza uygun olup olmadığı sistem tarafından işaretlenir.</p>
+
+    <div class="request-list">
+      <article class="request-card">
+        <span class="badge badge-fit">Bu talep fiyat politikanıza uygundur</span>
+        <h3>Fiziki güvenlik – İstanbul, Kadıköy</h3>
+        <p class="meta">Hizmet: Fiziki · Süre: 24/7 · Personel: 4 · Silahsız</p>
+        <a href="offer.html?id=1" class="btn btn-primary">Teklif Ver</a>
+      </article>
+      <article class="request-card">
+        <span class="badge badge-no-fit">Bu talep fiyat politikanıza uygun değildir</span>
+        <h3>Etkinlik güvenliği – Ankara, Çankaya</h3>
+        <p class="meta">Hizmet: Etkinlik · Süre: Saatlik · Personel: 8 · Silahlı</p>
+        <a href="offer.html?id=2" class="btn btn-secondary">Teklif Ver</a>
+      </article>
+      <article class="request-card">
+        <span class="badge badge-fit">Bu talep fiyat politikanıza uygundur</span>
+        <h3>Özel güvenlik – İzmir, Bornova</h3>
+        <p class="meta">Hizmet: Özel · Süre: Vardiya · Personel: 2 · Silahsız</p>
+        <a href="offer.html?id=3" class="btn btn-primary">Teklif Ver</a>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Güvenlik Hizmeti Talebi Oluştur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="dashboard.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar · Alıcı</a>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn btn-secondary">Panel</a>
+      <a href="../login.html" class="btn btn-primary">Çıkış</a>
+    </div>
+  </nav>
+
+  <main class="form-page form-page-wide">
+    <a href="dashboard.html" class="back">← Panele dön</a>
+    <h1>Güvenlik hizmeti talebi oluştur</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Talebiniz yayınlandıktan sonra uygun sağlayıcılar size teklif verebilecek. Bütçe bilginiz sadece eşleştirme için kullanılır, sağlayıcılara gösterilmez.</p>
+
+    <form class="form-card" id="form-request">
+      <!-- A) Hizmet Bilgileri -->
+      <div class="form-section">
+        <h3>A) Hizmet bilgileri</h3>
+        <div class="form-group">
+          <label for="service_type">Hizmet türü <span style="color: var(--accent);">*</span></label>
+          <select id="service_type" name="service_type" required>
+            <option value="">Seçiniz</option>
+            <option value="fiziki">Fiziki güvenlik</option>
+            <option value="ozel">Özel güvenlik</option>
+            <option value="mobil">Mobil güvenlik</option>
+            <option value="etkinlik">Etkinlik güvenliği</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="service_duration">Hizmet süresi <span style="color: var(--accent);">*</span></label>
+          <select id="service_duration" name="service_duration" required>
+            <option value="">Seçiniz</option>
+            <option value="24/7">24/7</option>
+            <option value="vardiya">Vardiya</option>
+            <option value="saatlik">Saatlik</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label for="start_date">Başlangıç tarihi <span style="color: var(--accent);">*</span></label>
+            <input type="date" id="start_date" name="start_date" required>
+          </div>
+          <div class="form-group">
+            <label for="contract_duration">Sözleşme süresi</label>
+            <select id="contract_duration" name="contract_duration">
+              <option value="">Seçiniz (opsiyonel)</option>
+              <option value="1">1 ay</option>
+              <option value="6">6 ay</option>
+              <option value="12">12 ay</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- B) Lokasyon & Alan -->
+      <div class="form-section">
+        <h3>B) Lokasyon ve alan</h3>
+        <div class="form-group">
+          <label for="location">Hizmet lokasyonu (İl / İlçe) <span style="color: var(--accent);">*</span></label>
+          <input type="text" id="location" name="location" required placeholder="Örn: İstanbul, Kadıköy">
+        </div>
+        <div class="form-group">
+          <label for="area_type">Alan türü <span style="color: var(--accent);">*</span></label>
+          <select id="area_type" name="area_type" required>
+            <option value="">Seçiniz</option>
+            <option value="avm">AVM</option>
+            <option value="site">Site</option>
+            <option value="ofis">Ofis</option>
+            <option value="fabrika">Fabrika</option>
+            <option value="hastane">Hastane</option>
+            <option value="diger">Diğer</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label for="point_count">Nokta sayısı (giriş / bina) <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="point_count" name="point_count" required min="1" placeholder="Örn: 2">
+          </div>
+          <div class="form-group">
+            <label for="area_sqm">Alan büyüklüğü (m²)</label>
+            <input type="number" id="area_sqm" name="area_sqm" min="1" placeholder="Opsiyonel">
+          </div>
+        </div>
+      </div>
+
+      <!-- C) Personel İhtiyacı -->
+      <div class="form-section">
+        <h3>C) Personel ihtiyacı</h3>
+        <div class="form-group">
+          <label for="staff_count">Personel sayısı <span style="color: var(--accent);">*</span></label>
+          <input type="number" id="staff_count" name="staff_count" required min="1" placeholder="Toplam">
+        </div>
+        <div class="form-group">
+          <label>Silahlı / Silahsız <span style="color: var(--accent);">*</span></label>
+          <div class="form-group-check" style="gap: 1rem; margin-top: 0.5rem;">
+            <label class="form-group-check">
+              <input type="radio" name="weapon" value="silahsiz" required> Silahsız
+            </label>
+            <label class="form-group-check">
+              <input type="radio" name="weapon" value="silahli"> Silahlı
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="special_req">Özel nitelik</label>
+          <input type="text" id="special_req" name="special_req" placeholder="Yabancı dil, kadın personel vb. (opsiyonel)">
+        </div>
+      </div>
+
+      <!-- D) Bütçe (gizli) -->
+      <div class="form-section">
+        <h3>D) Bütçe (sadece eşleştirme için – sağlayıcıya gösterilmez)</h3>
+        <div class="budget-notice">
+          <strong>🔒 Bütçe gizliliği:</strong> Aylık bütçe aralığınız yalnızca sistem tarafından kullanılır. Sağlayıcılar rakamı görmez; sadece “Bu talep fiyat politikanıza uygundur / uygun değildir” bilgisini görür.
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label for="budget_min">Aylık bütçe min (TL) <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="budget_min" name="budget_min" required min="0" placeholder="Örn: 50000">
+          </div>
+          <div class="form-group">
+            <label for="budget_max">Aylık bütçe max (TL) <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="budget_max" name="budget_max" required min="0" placeholder="Örn: 80000">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Talebi Yayınla</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('form-request').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var min = parseInt(document.getElementById('budget_min').value, 10);
+      var max = parseInt(document.getElementById('budget_max').value, 10);
+      if (min > max) {
+        alert('Max bütçe, min bütçeden küçük olamaz.');
+        return;
+      }
+      alert('Talep oluşturma şu an demo aşamasında. Backend bağlandığında talebiniz yayınlanacak.');
+    });
+  </script>
+</body>
+</html>

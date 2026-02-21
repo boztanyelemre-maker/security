@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firma profili - Tekliflere açık ol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="dashboard.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar · Sağlayıcı</a>
+    <div class="nav-buttons">
+      <a href="requests.html" class="btn btn-secondary">Talepler</a>
+      <a href="../login.html" class="btn btn-primary">Çıkış</a>
+    </div>
+  </nav>
+
+  <main class="form-page form-page-wide">
+    <a href="requests.html" class="back">← Taleplere dön</a>
+    <h1>Firma profili</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Profilinizi tamamlayın; uygun taleplere teklif verebilirsiniz. Min/Max aylık iş büyüklüğü eşleştirme için kullanılır.</p>
+
+    <form class="form-card" id="form-profile">
+      <div class="form-section">
+        <h3>A) Operasyonel kapasite</h3>
+        <div class="form-group">
+          <label for="cities">Hizmet verilen şehirler <span style="color: var(--accent);">*</span></label>
+          <select id="cities" name="cities" multiple required>
+            <option value="istanbul">İstanbul</option>
+            <option value="ankara">Ankara</option>
+            <option value="izmir">İzmir</option>
+            <option value="antalya">Antalya</option>
+            <option value="bursa">Bursa</option>
+            <option value="adana">Adana</option>
+            <option value="konya">Konya</option>
+            <option value="gaziantep">Gaziantep</option>
+            <option value="kocaeli">Kocaeli</option>
+            <option value="tum-turkiye">Tüm Türkiye</option>
+          </select>
+          <span class="hint">Ctrl (veya Cmd) ile birden fazla seçebilirsiniz.</span>
+        </div>
+        <div class="form-group">
+          <label for="max_staff">Maks. personel kapasitesi <span style="color: var(--accent);">*</span></label>
+          <input type="number" id="max_staff" name="max_staff" required min="1" placeholder="Toplam personel sayısı">
+        </div>
+        <div class="form-group">
+          <label for="service_types">Hizmet türleri <span style="color: var(--accent);">*</span></label>
+          <div class="form-group-check" style="flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
+            <label class="form-group-check"><input type="checkbox" name="service_types" value="fiziki"> Fiziki</label>
+            <label class="form-group-check"><input type="checkbox" name="service_types" value="ozel"> Özel</label>
+            <label class="form-group-check"><input type="checkbox" name="service_types" value="mobil"> Mobil</label>
+            <label class="form-group-check"><input type="checkbox" name="service_types" value="etkinlik"> Etkinlik</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>B) Finansal & fiyat mantığı (eşleştirme için)</h3>
+        <div class="form-group">
+          <label for="avg_cost">Ortalama personel maliyeti (TL/ay)</label>
+          <input type="number" id="avg_cost" name="avg_cost" min="0" placeholder="Opsiyonel – sadece sistem içi">
+        </div>
+        <div class="input-row">
+          <div class="form-group">
+            <label for="min_job">Min aylık iş büyüklüğü (TL) <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="min_job" name="min_job" required min="0" placeholder="Alt sınır">
+          </div>
+          <div class="form-group">
+            <label for="max_job">Max aylık iş büyüklüğü (TL) <span style="color: var(--accent);">*</span></label>
+            <input type="number" id="max_job" name="max_job" required min="0" placeholder="Üst sınır">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>C) Referans & güven</h3>
+        <div class="form-group">
+          <label>Referanslı iş var mı?</label>
+          <div class="form-group-check" style="gap: 1rem; margin-top: 0.5rem;">
+            <label class="form-group-check"><input type="radio" name="has_ref" value="evet"> Evet</label>
+            <label class="form-group-check"><input type="radio" name="has_ref" value="hayir"> Hayır</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="doc">Belgeler (PDF)</label>
+          <input type="file" id="doc" name="doc" accept=".pdf" multiple>
+          <span class="hint">Lisans, sertifika vb. (opsiyonel)</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Tekliflere Açık Hale Gel</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('form-profile').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var min = parseInt(document.getElementById('min_job').value, 10);
+      var max = parseInt(document.getElementById('max_job').value, 10);
+      if (min > max) {
+        alert('Max iş büyüklüğü, min değerden küçük olamaz.');
+        return;
+      }
+      var checked = document.querySelectorAll('input[name="service_types"]:checked');
+      if (checked.length === 0) {
+        alert('En az bir hizmet türü seçin.');
+        return;
+      }
+      alert('Profil kaydedildi (demo). Uygun taleplere teklif verebilirsiniz.');
+      window.location.href = 'requests.html';
+    });
+  </script>
+</body>
+</html>

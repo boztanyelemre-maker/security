@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap - Güvenlik Pazar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar</a>
+    <div class="nav-buttons">
+      <a href="register.html" class="btn btn-secondary">Kayıt Ol</a>
+    </div>
+  </nav>
+
+  <main class="form-page">
+    <a href="index.html" class="back">← Ana sayfaya dön</a>
+    <h1>Giriş yap</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Rol bilgisi kayıt sırasında kaydedildi; giriş sonrası otomatik olarak ilgili panele yönlendirileceksiniz.</p>
+
+    <form class="form-card" id="form-login">
+      <div class="form-group">
+        <label for="email">E-posta <span style="color: var(--accent);">*</span></label>
+        <input type="email" id="email" name="email" required placeholder="ornek@firma.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Şifre <span style="color: var(--accent);">*</span></label>
+        <input type="password" id="password" name="password" required placeholder="Şifreniz">
+      </div>
+      <div id="demo-role-step" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--primary-light); border-radius: var(--radius); border: 1px solid var(--primary);">
+        <p style="margin: 0 0 0.75rem; font-size: 0.9375rem;"><strong>Demo:</strong> Backend bağlı değil. Giriş sonrası hangi panele gideceğinizi simüle etmek için seçin:</p>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" id="btn-demo-buyer" class="btn btn-primary">Alıcı paneline git</button>
+          <button type="button" id="btn-demo-provider" class="btn btn-secondary">Sağlayıcı paneline git</button>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Giriş Yap</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    var form = document.getElementById('form-login');
+    var demoStep = document.getElementById('demo-role-step');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Gerçek sistemde: API'ye e-posta + şifre gönderilir, cevapta role + token gelir, role'e göre yönlendirilir.
+      var role = localStorage.getItem('demo_role');
+      if (role === 'buyer') {
+        window.location.href = 'buyer/dashboard.html';
+        return;
+      }
+      if (role === 'provider') {
+        window.location.href = 'provider/dashboard.html';
+        return;
+      }
+      // Demo: Rol bilgisi yok (örn. farklı cihaz veya kayıt bu tarayıcıda yapılmadı)
+      demoStep.style.display = 'block';
+    });
+
+    document.getElementById('btn-demo-buyer').addEventListener('click', function() {
+      localStorage.setItem('demo_role', 'buyer');
+      window.location.href = 'buyer/dashboard.html';
+    });
+    document.getElementById('btn-demo-provider').addEventListener('click', function() {
+      localStorage.setItem('demo_role', 'provider');
+      window.location.href = 'provider/dashboard.html';
+    });
+  </script>
+</body>
+</html>

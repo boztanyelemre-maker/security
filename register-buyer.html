@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kayıt Ol - Güvenlik Hizmeti Almak İstiyorum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar</a>
+    <div class="nav-buttons">
+      <a href="register.html" class="btn btn-secondary">Geri</a>
+      <a href="login.html" class="btn btn-primary">Giriş Yap</a>
+    </div>
+  </nav>
+
+  <main class="form-page">
+    <a href="register.html" class="back">← Firma türü seçimine dön</a>
+    <h1>Güvenlik hizmeti almak isteyen firma</h1>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin: 0 0 1.5rem;">Hesabınızı oluşturun, ardından talep oluşturma adımına geçebilirsiniz.</p>
+
+    <form class="form-card" action="#" method="post" id="form-buyer">
+      <div class="form-group">
+        <label for="company">Firma Ünvanı <span style="color: var(--accent);">*</span></label>
+        <input type="text" id="company" name="company" required minlength="5" placeholder="Örn: ABC Sanayi A.Ş. (min 5 karakter)">
+      </div>
+      <div class="form-group">
+        <label for="vkn">Vergi No / VKN <span style="color: var(--accent);">*</span></label>
+        <input type="text" id="vkn" name="vkn" required placeholder="10 haneli vergi kimlik numarası" pattern="[0-9]{10}" maxlength="10">
+        <span class="hint">10 rakam</span>
+      </div>
+      <div class="form-group">
+        <label for="contact">Yetkili Ad Soyad <span style="color: var(--accent);">*</span></label>
+        <input type="text" id="contact" name="contact" required placeholder="Ad Soyad">
+      </div>
+      <div class="form-group">
+        <label for="email">E-posta <span style="color: var(--accent);">*</span></label>
+        <input type="email" id="email" name="email" required placeholder="ornek@firma.com">
+      </div>
+      <div class="form-group">
+        <label for="phone">Telefon <span style="color: var(--accent);">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="05XX XXX XX XX">
+      </div>
+      <div class="form-group">
+        <label for="city">İl / İlçe <span style="color: var(--accent);">*</span></label>
+        <select id="city" name="city" required>
+          <option value="">İl seçiniz</option>
+          <option value="adana">Adana</option>
+          <option value="ankara">Ankara</option>
+          <option value="antalya">Antalya</option>
+          <option value="aydin">Aydın</option>
+          <option value="balikesir">Balıkesir</option>
+          <option value="bursa">Bursa</option>
+          <option value="denizli">Denizli</option>
+          <option value="diyarbakir">Diyarbakır</option>
+          <option value="eskisehir">Eskişehir</option>
+          <option value="gaziantep">Gaziantep</option>
+          <option value="hatay">Hatay</option>
+          <option value="istanbul">İstanbul</option>
+          <option value="izmir">İzmir</option>
+          <option value="kayseri">Kayseri</option>
+          <option value="kocaeli">Kocaeli</option>
+          <option value="konya">Konya</option>
+          <option value="manisa">Manisa</option>
+          <option value="mersin">Mersin</option>
+          <option value="muğla">Muğla</option>
+          <option value="sakarya">Sakarya</option>
+          <option value="samsun">Samsun</option>
+          <option value="sanliurfa">Şanlıurfa</option>
+          <option value="trabzon">Trabzon</option>
+        </select>
+        <input type="text" id="district" name="district" placeholder="İlçe (opsiyonel)" style="margin-top: 0.5rem;">
+      </div>
+      <div class="form-group">
+        <label for="password">Şifre <span style="color: var(--accent);">*</span></label>
+        <input type="password" id="password" name="password" required placeholder="Min 8 karakter, en az 1 büyük harf" minlength="8">
+        <span class="hint">En az 8 karakter, en az 1 büyük harf</span>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Hesap Oluştur → Talep Oluştur'a Geç</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('form-buyer').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var company = document.getElementById('company').value.trim();
+      var password = document.getElementById('password').value;
+      if (company.length < 5) {
+        alert('Firma ünvanı en az 5 karakter olmalıdır.');
+        return;
+      }
+      if (password.length < 8 || !/[A-Z]/.test(password)) {
+        alert('Şifre en az 8 karakter ve en az 1 büyük harf içermelidir.');
+        return;
+      }
+      localStorage.setItem('demo_role', 'buyer'); // Giriş sonrası doğru panele yönlendirme için
+      window.location.href = 'buyer/request-create.html';
+    });
+  </script>
+</body>
+</html>

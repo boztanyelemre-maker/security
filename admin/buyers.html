@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alıcı firmalar - Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" style="font-weight: 700; color: var(--text); text-decoration: none;">Güvenlik Pazar · Admin</a>
+    <div class="nav-buttons">
+      <a href="index.html" class="btn btn-secondary">Panel</a>
+      <a href="../index.html" class="btn btn-secondary">Siteye Dön</a>
+      <a href="login.html" class="btn btn-primary">Çıkış</a>
+    </div>
+  </nav>
+
+  <main class="admin-page">
+    <div class="admin-nav">
+      <a href="buyers.html" class="active">Alıcı firmalar</a>
+      <a href="providers.html">Sağlayıcı firmalar</a>
+    </div>
+
+    <h1>Alıcı firmalar</h1>
+    <p style="color: var(--text-muted); margin: 0 0 1.5rem;">Güvenlik hizmeti almak isteyen kayıtlı firmalar. Talep sayıları ve durum bilgisi.</p>
+
+    <div style="overflow-x: auto;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Firma adı</th>
+            <th>Yetkili</th>
+            <th>Lokasyon</th>
+            <th>Talep</th>
+            <th>Aktif talep</th>
+            <th>Durum</th>
+            <th>Kayıt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ABC Sanayi A.Ş.</td>
+            <td>Ahmet Yılmaz</td>
+            <td>İstanbul, Kadıköy</td>
+            <td>3</td>
+            <td>1</td>
+            <td><span class="status active">Aktif</span></td>
+            <td>15.02.2025</td>
+          </tr>
+          <tr>
+            <td>XYZ AVM Yönetimi</td>
+            <td>Ayşe Demir</td>
+            <td>Ankara, Çankaya</td>
+            <td>1</td>
+            <td>1</td>
+            <td><span class="status active">Aktif</span></td>
+            <td>18.02.2025</td>
+          </tr>
+          <tr>
+            <td>Merkez Site Yönetimi</td>
+            <td>Mehmet Kaya</td>
+            <td>İzmir, Bornova</td>
+            <td>2</td>
+            <td>0</td>
+            <td><span class="status active">Aktif</span></td>
+            <td>10.02.2025</td>
+          </tr>
+          <tr>
+            <td>Sağlık Holding</td>
+            <td>Fatma Öz</td>
+            <td>Bursa, Nilüfer</td>
+            <td>0</td>
+            <td>0</td>
+            <td><span class="status pending">Beklemede</span></td>
+            <td>20.02.2025</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 1rem;">Demo veri. Backend bağlandığında gerçek kayıtlar burada listelenecek.</p>
+  </main>
+</body>
+</html>

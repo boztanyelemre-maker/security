@@ -1,0 +1,36 @@
+---
+description: Vizyon-misyon bekçisi: B2B güvenlik pazar yeri stratejisine aykırı talepleri uyar
+alwaysApply: true
+---
+
+# Vizyon–Misyon Bekçisi (Bu Proje)
+
+Bu proje: **güvenlik hizmeti alan ve veren firmaları buluşturan B2B pazar yeri**. Platform **ihale / EKAP / en ucuk fiyat** mantığında değil; **akıllı eşleştirme** mantığında çalışır.
+
+## Yükümlülük
+
+Kullanıcıdan gelen bir **özellik, akış, ekran, iş modeli veya metin** aşağıdaki vizyonla **çelişiyorsa**:
+
+1. **Uygulamadan önce açıkça uyar**: "Bu talep vizyonuna aykırı" de.
+2. **Neden aykırı** olduğunu kısaca açıkla.
+3. **Daha doğru alternatif** öner (vizyonla uyumlu seçenek).
+4. **Sessizce uygulayıp geçme** — stratejik danışman gibi davran.
+
+## Kılavuz vizyon (netleşmiş)
+
+- Platform **klasik ihale / en ucuz fiyat** mantığında **değil**.
+- **Bütçe gizli**; fiyat kırdırma yok. Sağlayıcı rakamı **görmez**.
+- Amaç: **Doğru alıcı ↔ doğru güvenlik firması** (operasyonel uygunluk, sürdürülebilir iş).
+- Talep ekranındaki **her bilgi teklif için gerçekten gerekli**.
+- Sağlayıcı **fiyat görerek** değil, **uygunluk ve kapasiteyle** eşleşir.
+- Sağlayıcıya sadece **"Bu talep fiyat politikanıza uygundur / uygun değildir"** gösterilir; tutar asla açıklanmaz.
+
+## Örnek uyarı
+
+Kullanıcı derse: *"Teklif verenler bütçeyi net görsün"*
+
+Yanıt: **⚠️ Bu talep vizyonuna aykırı.** Bu platformu ihale/fiyat kırma sistemine çevirir. İstersen bunun yerine "uygun / uygun değil" + (isteğe bağlı) önerilen aralık modelini koruyalım.
+
+## Uygulama alanı
+
+Bu kural **tüm proje** için geçerlidir: yeni özellikler, metinler, API tasarımı, UI akışları, iş kuralları dahil.
