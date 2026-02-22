@@ -1,0 +1,120 @@
+{
+  "info": {
+    "name": "Auth Register Tests",
+    "description": "POST /auth/register/buyer ve /provider testleri: 201, 409 email, 409 tax_id, 400 eksik alan",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "email", "value": "test-buyer-{{$randomInt}}.@test.com" },
+    { "key": "tax_id", "value": "{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}" }
+  ],
+  "item": [
+    {
+      "name": "Buyer",
+      "item": [
+        {
+          "name": "1) Basarili kayit → 201",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alici-test@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Postman Buyer\",\n  \"legal_name\": \"Test AVM A.S.\",\n  \"tax_id\": \"1111111111\",\n  \"hq_city_id\": 34\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/buyer"
+          }
+        },
+        {
+          "name": "2) Ayni email → 409",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alici-test@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Ikinci Deneme\",\n  \"legal_name\": \"Baska Firma A.S.\",\n  \"tax_id\": \"2222222222\",\n  \"hq_city_id\": 34\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/buyer"
+          }
+        },
+        {
+          "name": "3) Ayni tax_id → 409",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"baska-alici@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Baska Buyer\",\n  \"legal_name\": \"Baska Firma\",\n  \"tax_id\": \"1111111111\",\n  \"hq_city_id\": 34\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/buyer"
+          }
+        },
+        {
+          "name": "4) Eksik alan → 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"eksik@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Eksik Test\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/buyer"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Provider",
+      "item": [
+        {
+          "name": "1) Basarili kayit → 201",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"saglayici-test@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Postman Provider\",\n  \"legal_name\": \"Test Guvenlik A.S.\",\n  \"tax_id\": \"3333333333\",\n  \"hq_city_id\": 34,\n  \"pays_salary_sgk_tax_on_time\": true\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/provider"
+          }
+        },
+        {
+          "name": "2) Ayni email → 409",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"saglayici-test@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Ikinci Provider\",\n  \"legal_name\": \"Baska Guvenlik A.S.\",\n  \"tax_id\": \"4444444444\",\n  \"hq_city_id\": 34,\n  \"pays_salary_sgk_tax_on_time\": false\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/provider"
+          }
+        },
+        {
+          "name": "3) Ayni tax_id → 409",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"baska-provider@postman.com\",\n  \"password\": \"guvenli123\",\n  \"full_name\": \"Baska Provider\",\n  \"legal_name\": \"Baska Guvenlik\",\n  \"tax_id\": \"3333333333\",\n  \"hq_city_id\": 34,\n  \"pays_salary_sgk_tax_on_time\": true\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/provider"
+          }
+        },
+        {
+          "name": "4) Eksik alan → 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"eksik-provider@postman.com\",\n  \"password\": \"guvenli123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register/provider"
+          }
+        }
+      ]
+    }
+  ]
+}
