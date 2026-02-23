@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { pool } = require('../db/pool');
 const config = require('../config');
+const jwtConfig = require('../config/jwt');
 
 const SALT_ROUNDS = 10;
 const BUYER_ROLE_CODE = 'BUYER_USER';
@@ -264,8 +264,6 @@ async function registerProvider(body) {
   }
 }
 
-const JWT_EXPIRY = '7d';
-
 async function login(body) {
   if (!pool) {
     const err = new Error('Database not configured');
@@ -318,23 +316,102 @@ async function login(body) {
   );
   const roles = rolesRow.rows.map((r) => r.code);
 
+  const orgRow = await pool.query(
+    `SELECT o.id, o.org_type
+     FROM organization_users ou
+     JOIN organizations o ON o.id = ou.organization_id
+     WHERE ou.user_id = $1
+     ORDER BY ou.is_primary_contact DESC, ou.created_at ASC
+     LIMIT 1`,
+    [user.id]
+  );
+
+  const organization = orgRow.rowCount > 0 ? orgRow.rows[0] : null;
+  const organizationId = organization ? organization.id : null;
+  const organizationType = organization ? organization.org_type : null;
+
   const payload = {
     id: user.id,
     email: user.email,
     roles,
+    organizationId,
+    organizationType,
   };
-  const token = jwt.sign(payload, config.jwtSecret, { expiresIn: JWT_EXPIRY });
+  const token = jwtConfig.sign(payload);
 
   return {
     token,
-    expiresIn: JWT_EXPIRY,
+    expiresIn: config.jwtExpiresIn,
     user: {
-      id: user.id,
-      email: user.email,
-      full_name: user.full_name,
+      user_id: user.id,
+      org_id: organizationId,
+      org_type: organizationType,
       roles,
     },
   };
 }
 
-module.exports = { registerBuyer, registerProvider, login };
+async function getMe(userId) {
+  if (!pool) {
+    const err = new Error('Database not configured');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+    throw err;
+  }
+
+  const userRow = await pool.query(
+    'SELECT id, email, full_name, is_active FROM users WHERE id = $1',
+    [userId]
+  );
+
+  if (userRow.rowCount === 0) {
+    const err = new Error('User not found');
+    err.statusCode = 404;
+    err.code = 'USER_NOT_FOUND';
+    throw err;
+  }
+
+  const user = userRow.rows[0];
+  if (!user.is_active) {
+    const err = new Error('Account is disabled');
+    err.statusCode = 403;
+    err.code = 'ACCOUNT_DISABLED';
+    throw err;
+  }
+
+  const rolesRow = await pool.query(
+    'SELECT r.code FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = $1',
+    [user.id]
+  );
+  const roles = rolesRow.rows.map((r) => r.code);
+
+  const orgRow = await pool.query(
+    `SELECT o.id, o.org_type, o.legal_name, o.tax_id
+     FROM organization_users ou
+     JOIN organizations o ON o.id = ou.organization_id
+     WHERE ou.user_id = $1
+     ORDER BY ou.is_primary_contact DESC, ou.created_at ASC
+     LIMIT 1`,
+    [user.id]
+  );
+
+  let org = null;
+  if (orgRow.rowCount > 0) {
+    const o = orgRow.rows[0];
+    org = {
+      id: o.id,
+      org_type: o.org_type,
+      legal_name: o.legal_name,
+      tax_id: o.tax_id,
+    };
+  }
+
+  return {
+    user_id: user.id,
+    email: user.email,
+    org,
+    roles,
+  };
+}
+
+module.exports = { registerBuyer, registerProvider, login, getMe };

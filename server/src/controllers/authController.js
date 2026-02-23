@@ -36,4 +36,27 @@ async function login(req, res, next) {
   }
 }
 
-module.exports = { registerBuyer, registerProvider, login };
+async function me(req, res, next) {
+  try {
+    const result = await authService.getMe(req.user.user_id);
+    res.status(200).json({
+      data: result,
+      meta: {},
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function adminOnly(req, res, next) {
+  try {
+    res.status(200).json({
+      data: { message: 'Admin only area' },
+      meta: {},
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { registerBuyer, registerProvider, login, me, adminOnly };
