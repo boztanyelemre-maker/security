@@ -16,8 +16,10 @@ router.get('/dashboard', (req, res) => {
 });
 
 router.get('/requests', buyerController.listRequests);
+router.get('/requests/:id/offers', buyerController.listOffersForRequest);
 router.get('/requests/:id', buyerController.getRequest);
 router.post('/requests', buyerController.createRequest);
 router.put('/requests/:id', buyerController.updateRequest);
+router.post('/requests/:id/publish', buyerController.publishRequest);
 
 module.exports = router;

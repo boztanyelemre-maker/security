@@ -94,4 +94,50 @@ async function getRequest(req, res, next) {
   }
 }
 
-module.exports = { createRequest, updateRequest, listRequests, getRequest };
+async function publishRequest(req, res, next) {
+  try {
+    const buyerOrgId = req.user.org_id;
+    if (!buyerOrgId) {
+      return res.status(403).json({
+        code: 'FORBIDDEN',
+        message: 'Buyer organization required',
+        details: {},
+        requestId: req.id,
+      });
+    }
+
+    const requestId = req.params.id;
+    const result = await requestService.publishRequest(buyerOrgId, requestId);
+    res.status(200).json({
+      data: result,
+      meta: {},
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function listOffersForRequest(req, res, next) {
+  try {
+    const buyerOrgId = req.user.org_id;
+    if (!buyerOrgId) {
+      return res.status(403).json({
+        code: 'FORBIDDEN',
+        message: 'Buyer organization required',
+        details: {},
+        requestId: req.id,
+      });
+    }
+
+    const requestId = req.params.id;
+    const items = await requestService.listOffersForRequest(buyerOrgId, requestId);
+    res.status(200).json({
+      data: items,
+      meta: { total: items.length },
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { createRequest, updateRequest, listRequests, getRequest, publishRequest, listOffersForRequest };

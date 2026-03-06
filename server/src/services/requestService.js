@@ -338,4 +338,183 @@ async function getRequest(buyerOrgId, requestId) {
   };
 }
 
-module.exports = { validateCreateRequest, createRequest, updateRequest, listRequests, getRequest };
+async function publishRequest(buyerOrgId, requestId) {
+  if (!pool) {
+    const err = new Error('Database not configured');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+    throw err;
+  }
+
+  const existing = await pool.query(
+    `SELECT request_id, buyer_org_id, status, service_type, city_id,
+            personnel_count, start_date, contract_months, budget_min_try, budget_max_try
+       FROM requests
+      WHERE request_id = $1`,
+    [requestId]
+  );
+
+  if (existing.rowCount === 0) {
+    const err = new Error('Request not found');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  const row = existing.rows[0];
+  if (row.buyer_org_id !== buyerOrgId) {
+    const err = new Error('Request not found');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  if (row.status !== 'DRAFT') {
+    const err = new Error('Request is not publishable');
+    err.statusCode = 409;
+    err.code = 'REQUEST_NOT_EDITABLE';
+    err.details = { status: row.status };
+    throw err;
+  }
+
+  const missing = [];
+  if (!row.service_type) missing.push('service_type');
+  if (!row.personnel_count || row.personnel_count <= 0) missing.push('personnel_count');
+  if (!row.start_date) missing.push('start_date');
+  if (!row.contract_months || row.contract_months <= 0) missing.push('contract_months');
+  if (row.budget_min_try == null) missing.push('budget_min_try');
+  if (row.budget_max_try == null) missing.push('budget_max_try');
+
+  if (missing.length > 0) {
+    const err = new Error('Request is incomplete');
+    err.statusCode = 400;
+    err.code = 'REQUEST_INCOMPLETE';
+    err.details = { missing };
+    throw err;
+  }
+
+  // Basit matching engine v1: sadece OUT band eşleşmeleri kaydedilir
+  const providersRes = await pool.query(
+    `SELECT o.id AS provider_org_id,
+            o.hq_city_id,
+            o.status,
+            pp.min_monthly_price_try
+       FROM organizations o
+       JOIN provider_profiles pp ON pp.organization_id = o.id
+      WHERE o.org_type = 'PROVIDER'
+        AND o.status = 'ACTIVE'
+        AND o.hq_city_id = $1
+        AND pp.min_monthly_price_try IS NOT NULL`,
+    [row.city_id]
+  );
+
+  const budgetMin = Number(row.budget_min_try);
+  const budgetMax = Number(row.budget_max_try);
+  const lowerEdge = budgetMin * 0.85;
+  const upperEdge = budgetMax * 1.15;
+
+  for (const prov of providersRes.rows) {
+    const price = Number(prov.min_monthly_price_try);
+    let band = 'OUT';
+    if (price >= budgetMin && price <= budgetMax) {
+      band = 'IN';
+    } else if (
+      (price >= lowerEdge && price < budgetMin) ||
+      (price > budgetMax && price <= upperEdge)
+    ) {
+      band = 'EDGE';
+    } else {
+      band = 'OUT';
+    }
+
+    if (band === 'OUT') {
+      await pool.query(
+        `INSERT INTO request_matches (request_id, provider_org_id)
+         VALUES ($1, $2)
+         ON CONFLICT (request_id, provider_org_id) DO NOTHING`,
+        [requestId, prov.provider_org_id]
+      );
+    }
+  }
+
+  const matchesCountRes = await pool.query(
+    'SELECT COUNT(*)::int AS cnt FROM request_matches WHERE request_id = $1',
+    [requestId]
+  );
+  const matchCount = matchesCountRes.rows[0].cnt;
+
+  const result = await pool.query(
+    `UPDATE requests
+        SET status = 'PUBLISHED',
+            updated_at = NOW()
+      WHERE request_id = $1 AND buyer_org_id = $2 AND status = 'DRAFT'
+      RETURNING request_id, buyer_org_id, status, service_type, city_id, address_text, site_type,
+                personnel_count, shift_type, start_date, contract_months, budget_min_try, budget_max_try,
+                subcontract_allowed, subcontract_percent, created_at, updated_at`,
+    [requestId, buyerOrgId]
+  );
+
+  if (result.rowCount === 0) {
+    const err = new Error('Request not found');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  const updated = result.rows[0];
+  return {
+    status: updated.status,
+    match_count: matchCount,
+  };
+}
+
+function mapOfferForBuyer(row) {
+  return {
+    offer_id: row.offer_id ?? row.id,
+    request_id: row.request_id,
+    provider_org_id: row.provider_org_id,
+    provider_legal_name: row.provider_legal_name ?? null,
+    total_price_try: row.total_price_try ?? (row.monthly_offer_try != null ? Number(row.monthly_offer_try) : null),
+    price_breakdown: row.price_breakdown_json,
+    notes: row.notes ?? row.note ?? null,
+    status: row.status,
+    created_at: row.created_at ?? row.submitted_at,
+  };
+}
+
+async function listOffersForRequest(buyerOrgId, requestId) {
+  if (!pool) {
+    const err = new Error('Database not configured');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+    throw err;
+  }
+
+  const result = await pool.query(
+    `SELECT o.*, org.legal_name AS provider_legal_name
+       FROM offers o
+       JOIN requests r ON r.request_id = o.request_id
+       JOIN organizations org ON org.id = o.provider_org_id
+      WHERE o.request_id = $1 AND r.buyer_org_id = $2
+      ORDER BY COALESCE(o.created_at, o.submitted_at) DESC NULLS LAST`,
+    [requestId, buyerOrgId]
+  );
+
+  if (result.rowCount === 0) {
+    const reqCheck = await pool.query(
+      'SELECT 1 FROM requests WHERE request_id = $1 AND buyer_org_id = $2',
+      [requestId, buyerOrgId]
+    );
+    if (reqCheck.rowCount === 0) {
+      const err = new Error('Request not found');
+      err.statusCode = 404;
+      err.code = 'NOT_FOUND';
+      throw err;
+    }
+    return [];
+  }
+
+  return result.rows.map(mapOfferForBuyer);
+}
+
+module.exports = { validateCreateRequest, createRequest, updateRequest, listRequests, getRequest, publishRequest, listOffersForRequest };

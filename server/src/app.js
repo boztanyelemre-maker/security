@@ -5,6 +5,7 @@ const errorHandler = require('./middleware/errorHandler');
 const healthRouter = require('./routes/health');
 const authRouter = require('./routes/auth');
 const buyerRouter = require('./routes/buyer');
+const providerRouter = require('./routes/provider');
 const config = require('./config');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(attachLogger);
 app.use('/health', healthRouter);
 app.use('/auth', authRouter);
 app.use('/buyer', buyerRouter);
+app.use('/provider', providerRouter);
 
 app.use((req, res) => {
   res.status(404).json({
