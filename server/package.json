@@ -9,6 +9,8 @@
     "db:init": "bash ../db/init.sh",
     "db:init:win": "cd .. && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-init.ps1",
     "db:init:docker": "cd .. && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-init-docker.ps1",
+    "db:migrate": "cd .. && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-migrate.ps1",
+    "db:seed": "cd .. && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db-seed.ps1",
     "health": "node -e \"require('http').get(process.env.HEALTH_URL || 'http://localhost:3000/health', r=>{console.log(r.statusCode); process.exit(r.statusCode===200?0:1)})\""
   },
   "engines": { "node": ">=18" },

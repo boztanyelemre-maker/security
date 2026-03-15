@@ -1,0 +1,18 @@
+---
+description: Bu projede hiçbir dosya silinmesin; proje bozulmasın
+alwaysApply: true
+---
+
+# Dosya Silme Yasağı
+
+Bu proje klasöründeki **hiçbir dosya silinmemelidir**. Dosya silmek projeyi bozuyor.
+
+## Yükümlülük
+
+- **Dosya silme**: `Delete` aracı veya silme amaçlı komutlar **kullanılmamalı**.
+- **Refactor / temizlik**: Dosya kaldırmak yerine **içeriği düzenle**, taşı veya deprecated işaretle; silme önerme.
+- **Eski / kullanılmayan dosyalar**: Kullanıcı açıkça "sil" demedikçe silme; gerekirse "Bu dosyayı silmek ister misin?" diye sor.
+
+## Uygulama alanı
+
+Proje kökü `security` ve altındaki **tüm dosyalar** bu kurala tabidir.
