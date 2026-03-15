@@ -6,6 +6,7 @@ const healthRouter = require('./routes/health');
 const authRouter = require('./routes/auth');
 const buyerRouter = require('./routes/buyer');
 const providerRouter = require('./routes/provider');
+const adminRouter = require('./routes/admin');
 const config = require('./config');
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/health', healthRouter);
 app.use('/auth', authRouter);
 app.use('/buyer', buyerRouter);
 app.use('/provider', providerRouter);
+app.use('/admin', adminRouter);
 
 app.use((req, res) => {
   res.status(404).json({

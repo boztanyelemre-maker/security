@@ -1,4 +1,5 @@
-require('dotenv').config();
+// DOTENV_SKIP=1: test ortamında .env yüklemesini atla (env validation testi)
+if (!process.env.DOTENV_SKIP) require('dotenv').config();
 
 const env = process.env.NODE_ENV || 'development';
 const port = parseInt(process.env.PORT || '3000', 10);

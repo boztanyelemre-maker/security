@@ -1,8 +1,18 @@
 const { pool } = require('../db/pool');
+const { validate: uuidValidate } = require('uuid');
 
 const DEFAULT_LIMIT = 10;
+
+function ensureValidRequestId(requestId) {
+  if (!requestId || !uuidValidate(requestId)) {
+    const err = new Error('Invalid request id');
+    err.statusCode = 400;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+}
 const MAX_LIMIT = 100;
-const ALLOWED_STATUSES = ['SUBMITTED', 'WITHDRAWN', 'HIDDEN_BY_ADMIN', 'ACCEPTED', 'REJECTED'];
+const ALLOWED_STATUSES = ['SUBMITTED', 'SHORTLISTED', 'WITHDRAWN', 'HIDDEN_BY_ADMIN', 'ACCEPTED', 'REJECTED'];
 
 function mapOfferRow(row) {
   return {
@@ -27,8 +37,8 @@ function validateSubmitOffer(body) {
   };
 
   const total_price_try = body.total_price_try != null ? parseInt(body.total_price_try, 10) : NaN;
-  if (Number.isNaN(total_price_try) || total_price_try < 0) {
-    err('total_price_try must be a non-negative integer');
+  if (Number.isNaN(total_price_try) || total_price_try <= 0) {
+    err('total_price_try must be a positive integer');
   }
 
   let price_breakdown_json = null;
@@ -42,12 +52,16 @@ function validateSubmitOffer(body) {
 }
 
 async function submitOffer(requestId, providerOrgId, body) {
+  ensureValidRequestId(requestId);
   if (!pool) {
     const err = new Error('Database not configured');
     err.statusCode = 503;
     err.code = 'SERVICE_UNAVAILABLE';
     throw err;
   }
+
+  // Body validation first (avoid leaking DB errors; return 400 before any query)
+  const { total_price_try, price_breakdown_json, notes } = validateSubmitOffer(body);
 
   const matchRow = await pool.query(
     `SELECT rm.request_id, rm.budget_fit_band
@@ -73,8 +87,6 @@ async function submitOffer(requestId, providerOrgId, body) {
     err.code = 'BUDGET_OUT';
     throw err;
   }
-
-  const { total_price_try, price_breakdown_json, notes } = validateSubmitOffer(body);
 
   const priceBreakdownJson = price_breakdown_json ? JSON.stringify(price_breakdown_json) : null;
 

@@ -1,6 +1,25 @@
 const { pool } = require('../db/pool');
+const { validate: uuidValidate } = require('uuid');
 
 const SERVICE_TYPES = ['SILAHLI', 'SILAHSIZ', 'VIP', 'MOBIL', 'KARMA'];
+
+function ensureValidRequestId(requestId) {
+  if (!requestId || !uuidValidate(requestId)) {
+    const err = new Error('Invalid request id');
+    err.statusCode = 400;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+}
+
+function ensureValidOfferId(offerId) {
+  if (!offerId || !uuidValidate(offerId)) {
+    const err = new Error('Invalid offer id');
+    err.statusCode = 400;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+}
 const SHIFT_TYPES = ['8', '12', '24'];
 
 function validateCreateRequest(body) {
@@ -132,6 +151,7 @@ async function createRequest(body, buyerOrgId) {
 }
 
 async function updateRequest(requestId, body, buyerOrgId) {
+  ensureValidRequestId(requestId);
   if (!pool) {
     const err = new Error('Database not configured');
     err.statusCode = 503;
@@ -293,6 +313,7 @@ async function listRequests(buyerOrgId, options = {}) {
 }
 
 async function getRequest(buyerOrgId, requestId) {
+  ensureValidRequestId(requestId);
   if (!pool) {
     const err = new Error('Database not configured');
     err.statusCode = 503;
@@ -339,6 +360,7 @@ async function getRequest(buyerOrgId, requestId) {
 }
 
 async function publishRequest(buyerOrgId, requestId) {
+  ensureValidRequestId(requestId);
   if (!pool) {
     const err = new Error('Database not configured');
     err.statusCode = 503;
@@ -469,20 +491,41 @@ async function publishRequest(buyerOrgId, requestId) {
 }
 
 function mapOfferForBuyer(row) {
+  const amount = row.total_price_try ?? (row.monthly_offer_try != null ? Number(row.monthly_offer_try) : null);
+
+  let budgetBand = row.budget_band || row.budget_fit_band || null;
+  if (!budgetBand && amount != null && row.budget_min_try != null && row.budget_max_try != null) {
+    const min = Number(row.budget_min_try);
+    const max = Number(row.budget_max_try);
+    const x = Number(amount);
+    const tol = 0.05;
+    if (Number.isFinite(min) && Number.isFinite(max) && Number.isFinite(x)) {
+      if (x >= min && x <= max) budgetBand = 'IN';
+      else if (x >= min * (1 - tol) && x < min) budgetBand = 'EDGE';
+      else if (x > max && x <= max * (1 + tol)) budgetBand = 'EDGE';
+      else budgetBand = 'OUT';
+    }
+  }
+
+  let riskBand = row.risk_band || row.risk_band_derived || 'NORMAL';
+
   return {
     offer_id: row.offer_id ?? row.id,
     request_id: row.request_id,
     provider_org_id: row.provider_org_id,
     provider_legal_name: row.provider_legal_name ?? null,
-    total_price_try: row.total_price_try ?? (row.monthly_offer_try != null ? Number(row.monthly_offer_try) : null),
-    price_breakdown: row.price_breakdown_json,
+    total_price_try: amount,
+    price_breakdown_json: row.price_breakdown_json,
     notes: row.notes ?? row.note ?? null,
     status: row.status,
     created_at: row.created_at ?? row.submitted_at,
+    risk_band: riskBand,
+    budget_band: budgetBand,
   };
 }
 
 async function listOffersForRequest(buyerOrgId, requestId) {
+  ensureValidRequestId(requestId);
   if (!pool) {
     const err = new Error('Database not configured');
     err.statusCode = 503;
@@ -491,12 +534,35 @@ async function listOffersForRequest(buyerOrgId, requestId) {
   }
 
   const result = await pool.query(
-    `SELECT o.*, org.legal_name AS provider_legal_name
-       FROM offers o
-       JOIN requests r ON r.request_id = o.request_id
-       JOIN organizations org ON org.id = o.provider_org_id
-      WHERE o.request_id = $1 AND r.buyer_org_id = $2
-      ORDER BY COALESCE(o.created_at, o.submitted_at) DESC NULLS LAST`,
+    `SELECT
+        o.*,
+        o.id AS offer_id,
+        org.legal_name AS provider_legal_name,
+        r.budget_min_try,
+        r.budget_max_try,
+        CASE
+          WHEN rf.id IS NULL THEN 'NORMAL'
+          WHEN rf.severity = 'CRITICAL' THEN 'CRITICAL'
+          ELSE 'WATCH'
+        END AS risk_band_derived
+     FROM offers o
+     JOIN requests r ON r.request_id = o.request_id
+     JOIN organizations org ON org.id = o.provider_org_id
+     LEFT JOIN risk_flags rf
+       ON rf.entity_type = 'OFFER'
+      AND rf.entity_id = o.id
+      AND rf.flag_type = 'TOO_LOW_OFFER'
+      AND rf.status = 'OPEN'
+    WHERE o.request_id = $1 AND r.buyer_org_id = $2
+    ORDER BY
+      CASE
+        WHEN rf.id IS NULL THEN 0          -- NORMAL
+        WHEN rf.severity = 'CRITICAL' THEN 2
+        ELSE 1                             -- HIGH => WATCH
+      END ASC,
+      (o.total_price_try IS NULL) ASC,
+      COALESCE(o.total_price_try, o.monthly_offer_try)::numeric ASC,
+      COALESCE(o.created_at, o.submitted_at) DESC NULLS LAST`,
     [requestId, buyerOrgId]
   );
 
@@ -517,4 +583,147 @@ async function listOffersForRequest(buyerOrgId, requestId) {
   return result.rows.map(mapOfferForBuyer);
 }
 
-module.exports = { validateCreateRequest, createRequest, updateRequest, listRequests, getRequest, publishRequest, listOffersForRequest };
+async function shortlistOffer(buyerOrgId, requestId, offerId) {
+  ensureValidRequestId(requestId);
+  ensureValidOfferId(offerId);
+  if (!pool) {
+    const err = new Error('Database not configured');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+    throw err;
+  }
+
+  let result;
+  try {
+    result = await pool.query(
+      `SELECT o.id
+         FROM offers o
+         JOIN requests r ON r.request_id = o.request_id
+        WHERE r.request_id = $1
+          AND r.buyer_org_id = $2
+          AND (o.offer_id = $3 OR o.id = $3)
+          AND o.status = 'SUBMITTED'`,
+      [requestId, buyerOrgId, offerId]
+    );
+  } catch (e) {
+    if (e.code === '42703') {
+      // Tek sütunlu şema (M07: id)
+      result = await pool.query(
+        `SELECT o.id
+           FROM offers o
+           JOIN requests r ON r.request_id = o.request_id
+          WHERE r.request_id = $1
+            AND r.buyer_org_id = $2
+            AND o.id = $3
+            AND o.status = 'SUBMITTED'`,
+        [requestId, buyerOrgId, offerId]
+      );
+    } else {
+      throw e;
+    }
+  }
+
+  if (result.rowCount === 0) {
+    const err = new Error('Offer not found or not shortlistable');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  const internalOfferId = result.rows[0].id;
+
+  try {
+    await pool.query(
+      `UPDATE offers
+          SET status = 'SHORTLISTED', updated_at = NOW()
+        WHERE id = $1`,
+      [internalOfferId]
+    );
+  } catch (e) {
+    if (e.code === '42703') {
+      await pool.query(
+        `UPDATE offers
+            SET status = 'SHORTLISTED'
+          WHERE id = $1`,
+        [internalOfferId]
+      );
+    } else {
+      throw e;
+    }
+  }
+
+  return { status: 'SHORTLISTED' };
+}
+
+async function rejectOffer(buyerOrgId, requestId, offerId) {
+  ensureValidRequestId(requestId);
+  ensureValidOfferId(offerId);
+  if (!pool) {
+    const err = new Error('Database not configured');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+    throw err;
+  }
+
+  let result;
+  try {
+    result = await pool.query(
+      `SELECT o.id
+         FROM offers o
+         JOIN requests r ON r.request_id = o.request_id
+        WHERE r.request_id = $1
+          AND r.buyer_org_id = $2
+          AND (o.offer_id = $3 OR o.id = $3)
+          AND o.status IN ('SUBMITTED','SHORTLISTED')`,
+      [requestId, buyerOrgId, offerId]
+    );
+  } catch (e) {
+    if (e.code === '42703') {
+      result = await pool.query(
+        `SELECT o.id
+           FROM offers o
+           JOIN requests r ON r.request_id = o.request_id
+          WHERE r.request_id = $1
+            AND r.buyer_org_id = $2
+            AND o.id = $3
+            AND o.status IN ('SUBMITTED','SHORTLISTED')`,
+        [requestId, buyerOrgId, offerId]
+      );
+    } else {
+      throw e;
+    }
+  }
+
+  if (result.rowCount === 0) {
+    const err = new Error('Offer not found or not rejectable');
+    err.statusCode = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  const internalOfferId = result.rows[0].id;
+
+  try {
+    await pool.query(
+      `UPDATE offers
+          SET status = 'REJECTED', updated_at = NOW()
+        WHERE id = $1`,
+      [internalOfferId]
+    );
+  } catch (e) {
+    if (e.code === '42703') {
+      await pool.query(
+        `UPDATE offers
+            SET status = 'REJECTED'
+          WHERE id = $1`,
+        [internalOfferId]
+      );
+    } else {
+      throw e;
+    }
+  }
+
+  return { status: 'REJECTED' };
+}
+
+module.exports = { validateCreateRequest, createRequest, updateRequest, listRequests, getRequest, publishRequest, listOffersForRequest, shortlistOffer, rejectOffer };

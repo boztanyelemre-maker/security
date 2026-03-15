@@ -31,6 +31,14 @@ function validateBuyerRegister(body) {
     throw err;
   }
   const emailNorm = email.trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(emailNorm)) {
+    const err = new Error('Invalid email format');
+    err.statusCode = 400;
+    err.code = 'VALIDATION_ERROR';
+    err.details = { field: 'email' };
+    throw err;
+  }
   const companyType = body.company_type && ['AS', 'LTD', 'OTHER'].includes(body.company_type) ? body.company_type : null;
   const hqCityId = parseInt(hq_city_id, 10);
   const hqDistrictId = body.hq_district_id != null && body.hq_district_id !== '' ? parseInt(body.hq_district_id, 10) : null;

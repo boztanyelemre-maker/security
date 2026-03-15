@@ -1,6 +1,16 @@
 const { pool } = require('../db/pool');
+const { validate: uuidValidate } = require('uuid');
 
 const DEFAULT_LIMIT = 10;
+
+function ensureValidRequestId(requestId) {
+  if (!requestId || !uuidValidate(requestId)) {
+    const err = new Error('Invalid request id');
+    err.statusCode = 400;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+}
 const MAX_LIMIT = 100;
 
 async function listMatchesForProvider(providerOrgId, options = {}) {
@@ -77,6 +87,7 @@ async function listMatchesForProvider(providerOrgId, options = {}) {
 }
 
 async function getRequestForProvider(providerOrgId, requestId) {
+  ensureValidRequestId(requestId);
   if (!pool) {
     const err = new Error('Database not configured');
     err.statusCode = 503;

@@ -171,6 +171,16 @@ async function main() {
   console.log('   201 OK');
   console.log('   data:', JSON.stringify(postOffer.data?.data, null, 2));
 
+  console.log('9b) POST /provider/requests/:id/offers with total_price_try <= 0...');
+  const badOfferZero = await request('POST', `/provider/requests/${requestId}/offers`, {
+    total_price_try: 0,
+  }, providerToken);
+  if (badOfferZero.status !== 400) {
+    console.error('Expected 400 for total_price_try <= 0, got', badOfferZero.status, badOfferZero.data);
+    process.exit(1);
+  }
+  console.log('   400 OK (validation), code:', badOfferZero.data.code, 'message:', badOfferZero.data.message);
+
   console.log('10) Aynı talebe ikinci teklif (eski WITHDRAWN, yeni SUBMITTED)...');
   const postOffer2 = await request('POST', `/provider/requests/${requestId}/offers`, {
     total_price_try: 420000,
@@ -232,9 +242,47 @@ async function main() {
     console.error('provider_legal_name alanı yok:', firstOffer);
     process.exit(1);
   }
-  console.log('   200 OK, buyer offers count:', buyerOffersItems.length, 'provider_legal_name:', firstOffer.provider_legal_name);
+   if (!firstOffer.risk_band || !['NORMAL', 'WATCH', 'CRITICAL'].includes(firstOffer.risk_band)) {
+    console.error('risk_band alanı beklenen formatta değil:', firstOffer);
+    process.exit(1);
+  }
+  if (!firstOffer.budget_band || !['IN', 'EDGE', 'OUT'].includes(firstOffer.budget_band)) {
+    console.error('budget_band alanı beklenen formatta değil:', firstOffer);
+    process.exit(1);
+  }
+  console.log('   200 OK, buyer offers count:', buyerOffersItems.length, 'provider_legal_name:', firstOffer.provider_legal_name, 'risk_band:', firstOffer.risk_band, 'budget_band:', firstOffer.budget_band);
 
-  console.log('15) Aşırı düşük teklif (risk_flags TOO_LOW_OFFER)...');
+  console.log('15) Buyer shortlist endpoint...');
+  const shortlistRes = await request('POST', `/buyer/requests/${requestId}/offers/${firstOffer.offer_id}/shortlist`, null, buyerToken);
+  if (shortlistRes.status !== 200) {
+    console.error('Buyer shortlist:', shortlistRes.status, shortlistRes.data);
+    process.exit(1);
+  }
+  const buyerOffersAfter = await request('GET', `/buyer/requests/${requestId}/offers`, null, buyerToken);
+  const itemsAfter = buyerOffersAfter.data?.data ?? [];
+  const shortlisted = itemsAfter.find((o) => o.offer_id === firstOffer.offer_id);
+  if (!shortlisted || shortlisted.status !== 'SHORTLISTED') {
+    console.error('SHORTLISTED bekleniyordu, bulunan:', shortlisted);
+    process.exit(1);
+  }
+  console.log('   200 OK, offer status SHORTLISTED');
+
+  console.log('16) Buyer reject endpoint...');
+  const rejectRes = await request('POST', `/buyer/requests/${requestId}/offers/${firstOffer.offer_id}/reject`, null, buyerToken);
+  if (rejectRes.status !== 200) {
+    console.error('Buyer reject:', rejectRes.status, rejectRes.data);
+    process.exit(1);
+  }
+  const buyerOffersAfterReject = await request('GET', `/buyer/requests/${requestId}/offers`, null, buyerToken);
+  const itemsAfterReject = buyerOffersAfterReject.data?.data ?? [];
+  const rejected = itemsAfterReject.find((o) => o.offer_id === firstOffer.offer_id);
+  if (!rejected || rejected.status !== 'REJECTED') {
+    console.error('REJECTED bekleniyordu, bulunan:', rejected);
+    process.exit(1);
+  }
+  console.log('   200 OK, offer status REJECTED');
+
+  console.log('17) Aşırı düşük teklif (risk_flags TOO_LOW_OFFER)...');
   const lowReq = await request('POST', '/buyer/requests', {
     service_type: 'SILAHSIZ',
     city_id: 34,
@@ -283,7 +331,7 @@ async function main() {
   const lowOfferId = lowOfferRes.data?.data?.offer_id ?? lowOfferRes.data?.offer_id;
   console.log('   201 OK, low offer_id:', lowOfferId);
 
-  console.log('16) risk_flags TOO_LOW_OFFER kontrolü...');
+  console.log('18) risk_flags TOO_LOW_OFFER kontrolü...');
   const flagCheck = await pool.query(
     `SELECT id, entity_type, entity_id, flag_type, severity, status
        FROM risk_flags
